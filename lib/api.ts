@@ -3,13 +3,16 @@ import type { Note, NoteTag } from "@/types/note";
 
 const BASE_URL = "https://notehub-public.goit.study/api";
 const noteHubToken = process.env.NEXT_PUBLIC_NOTEHUB_TOKEN;
+const isServer = typeof window === "undefined";
 
 const notesClient = axios.create({
-  baseURL: BASE_URL,
+  baseURL: isServer ? BASE_URL : "/api",
 });
 
 notesClient.interceptors.request.use((config) => {
-  if (noteHubToken) {
+  // Client-side requests go through Next.js route handlers at /api,
+  // so auth header should be added only for direct server-to-API calls.
+  if (isServer && noteHubToken) {
     config.headers.Authorization = `Bearer ${noteHubToken}`;
   }
 
